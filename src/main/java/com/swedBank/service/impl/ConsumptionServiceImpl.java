@@ -38,41 +38,9 @@ public class ConsumptionServiceImpl implements ConsumptionService {
 		
 	}
 
-    /**
-     *
-     * @param originIataCode
-     * @param destIataCode
-     * @return
-     */
-   /* @Override
-    public List<SearchResult> findFlights(String originIataCode, String destIataCode )  {
-        logger.info("Service addFlight********str str*********");
-            return flightDao.findFlights(originIataCode,  destIataCode);
-
-    }
-
-    *//**
-     *
-     * @param airportStr
-     * @return
-     *//*
-    @Override
-    public List<Airport> findAirports(String airportStr) throws ApplicationServiceException {
-        logger.info("Service findAirports*****************");
-            return flightDao.findAirports(airportStr);
-
-    }
-
-    *//**
-     *
-     * @param originAirport
-     * @param destAirport
-     * @param fare
-     *//*
-    @Override
-    public void addFlight(Airport originAirport, Airport destAirport, String fare){
-        logger.info("Service addFlight********Aiprot Airport fare*********");
-            flightDao.addFlight(originAirport,  destAirport,  fare);
-
-    }*/
+	@Override
+	public void blukRegistration(List<Registration> registrations) {
+		consumptionDaoImpl.blukRegistration(registrations);
+		
+	}   
 }

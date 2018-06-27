@@ -14,14 +14,24 @@ import io.swagger.annotations.ApiResponse;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -42,13 +52,15 @@ public class FuelConsumptionController {
      *
      * @param registration
      * @return
+     * @throws BadRequestException 
+     * @throws NotFoundException 
      */
     @ApiOperation(value="Registration", response=String.class )
     @ApiResponses(value={@ApiResponse(code =201, message="Created Successfully"),
                         @ApiResponse(code =500, message="Internal server Error")
     })
     @RequestMapping(value = "/registration", method = RequestMethod.POST)
-    public ResponseEntity<String> registration(@RequestBody RegistrationRequest registrationRequest ) {
+    public ResponseEntity<String> registration(@RequestBody RegistrationRequest registrationRequest ) throws NotFoundException, BadRequestException {
        logger.info("registration"+ registrationRequest.toString());
        consumptionBusinessImpl.registration(registrationRequest);
        return new ResponseEntity<>("Succesfully Added", HttpStatus.CREATED);
@@ -61,10 +73,12 @@ public class FuelConsumptionController {
     */
    @ApiOperation(value="Total spent amount of money grouped by month", response=String.class )
    @ApiResponses(value={@ApiResponse(code =201, message="Created Successfully"),
-                       @ApiResponse(code =500, message="Internal server Error")
+                       @ApiResponse(code =500, message="Internal server Error"),
+                       @ApiResponse(code =400, message="Input validations failed")
    })
-   @RequestMapping(value = "/getAmountByMonth", method = RequestMethod.POST)
-   public ResponseEntity<String> getAmountByMonth(@RequestBody String driverId ) {
+   @RequestMapping(value = "/getAmountByMonth", method = RequestMethod.GET)
+   public ResponseEntity<String> getAmountByMonth(@RequestBody String driverId ) 
+		   throws NotFoundException{
       logger.info("driverId"+ driverId);
       consumptionBusinessImpl.getAmountByMonth(driverId);
       return new ResponseEntity<>("Succesfully Added", HttpStatus.CREATED);
@@ -74,6 +88,7 @@ public class FuelConsumptionController {
    *
    * @param driverId, month
    * @return
+ * @throws NotFoundException 
    */
   @ApiOperation(value="List fuel consumption records for specified month "
   		+ "(each row should contain: fuel type, volume, date, price, total price, driver ID)", response=String.class )
@@ -81,68 +96,72 @@ public class FuelConsumptionController {
                       @ApiResponse(code =500, message="Internal server Error")
   })
   @RequestMapping(value = "/getConsumptionByMonth", method = RequestMethod.POST)
-  public ResponseEntity<String> getConsumptionByMonth(@RequestBody String month ) {
+  public ResponseEntity<String> getConsumptionByMonth(@RequestBody String month ) throws NotFoundException {
      logger.info("driverId"+ month);
      consumptionBusinessImpl.findConsumpationByMonth(month);
      return new ResponseEntity<>("Succesfully Added", HttpStatus.CREATED);
   }
+  
+  
+  @ApiOperation(value="List fuel consumption records for specified month "
+	  		+ "(each row should contain: fuel type, volume, date, price, total price, driver ID)", response=String.class )
+	  @ApiResponses(value={@ApiResponse(code =201, message="Created Successfully"),
+	                      @ApiResponse(code =500, message="Internal server Error")
+	  })
+	  @RequestMapping(value = "/bulkRegistrationUpload", method = RequestMethod.POST)
+  public ResponseEntity<?> uploadFile(
+          @RequestParam("file") MultipartFile uploadfile) throws NotFoundException, BadRequestException {
 
-   /* *//**
-     *
-     * @param origin
-     * @param destination
-     * @return
-     * @throws NotFoundException, BadRequestException
-     *//*
-    @ApiOperation(value="To get flight results", response=SearchResultsResponse.class )
-    @ApiResponses(value={@ApiResponse(code =200, message="List retrived successfully"),
-            @ApiResponse(code =500, message="Internal Server Error"),
-            @ApiResponse(code =400, message="Input validations failed"),
-            @ApiResponse(code =404, message="No Data Found")
-    })
-    @RequestMapping(value ="/getResults" , method = RequestMethod.GET)
-    public @ResponseBody
-    ResponseEntity<SearchResultsResponse> getResults(@RequestParam("origin")
-                                                 String origin, @RequestParam("destination")
-            String destination) throws NotFoundException, BadRequestException {
-        logger.info("info flight search executed" + origin +" " +destination);
-        List<SearchResult>  searchResults= flightBusinessImpl.findFlights(origin, destination);
-        if (searchResults != null && searchResults.size() >0 ){
-            logger.info("flight results size : flightsResults.size()" );
-            SearchResultsResponse searchResultsResponse = new SearchResultsResponse
-                    (new Date(), "","", searchResults);
-            return new ResponseEntity<>(searchResultsResponse, HttpStatus.OK);
-        } else {
-            throw new NotFoundException("No Data");
-        }
+      logger.debug("Single file upload!");
 
-    }
+      if (uploadfile.isEmpty()) {
+          return new ResponseEntity("please select a file!", HttpStatus.OK);
+      }
 
-    *//**
-     *
-     * @param queryString
-     * @return
-     * @throws NotFoundException
-     *//*
-    @ApiOperation(value="To get airport & city list", response=SearchResultsResponse.class )
-    @ApiResponses(value={@ApiResponse(code =200, message="List retrived successfully"),
-            @ApiResponse(code =500, message="Internal Server Error"),
-            @ApiResponse(code =404, message="No Data Found")
-    })
-    @RequestMapping(value ="/getAirportLists" , method = RequestMethod.GET)
-    public @ResponseBody
-    ResponseEntity<AiportsResponse> getAirportLists(@RequestParam(name="query", required=true) String queryString) throws NotFoundException,
-            ApplicationBusinessException {
-        logger.info("info getAirportNames executed" +queryString);
-        List<Airport> airportList= null;
-            airportList = flightBusinessImpl.findAirports(queryString);
-        AiportsResponse jsonResponse = new AiportsResponse(new Date (), "","", airportList);
-        if (airportList!=null && airportList.size() >0 ){
-            logger.info("info getAirportNames are more" );
-            return new ResponseEntity<>(jsonResponse, HttpStatus.OK);
-        } else {
-            throw new NotFoundException("No Data");
-        }
-    }*/
+      try {
 
+    	  buildRegistrationRequest(Arrays.asList(uploadfile));
+
+      } catch (IOException e) {
+          return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+      }
+
+      return new ResponseEntity<>("Succesfully Added", HttpStatus.CREATED);
+
+  }
+  
+  //save file
+  private void buildRegistrationRequest(List<MultipartFile> files) throws IOException, NotFoundException, BadRequestException {
+	  String UPLOADED_FOLDER = "./";
+	  List<RegistrationRequest> registrationBlukRequest = new ArrayList<RegistrationRequest>();
+      for (MultipartFile file : files) {
+
+          if (file.isEmpty()) {
+              continue; //next pls
+          }
+          file.getInputStream();
+          BufferedReader br = new BufferedReader(new InputStreamReader(file.getInputStream()));
+       // Read CSV header
+          br.readLine();
+          String line = "";
+          
+       			// Read customer data line by line
+       			while ((line = br.readLine()) != null) {
+       				String[] tokens = line.split(",");
+       				if (tokens.length > 4) {
+       					System.out.println(tokens.toString());
+       					RegistrationRequest registrationRequest = new RegistrationRequest(
+       							tokens[0], 
+       							Double.parseDouble(tokens[1]),
+       							Double.parseDouble(tokens[2]), 
+       							tokens[3],
+       							Integer.parseInt(tokens[4]));
+       					
+       					registrationBlukRequest.add(registrationRequest);
+       				}
+       			}
+      }
+      consumptionBusinessImpl.blukRegistration(registrationBlukRequest);
+
+  }
 }

@@ -5,17 +5,43 @@ import io.swagger.annotations.ApiModelProperty;
 
 import java.io.Serializable;
 
+import javax.validation.constraints.DecimalMax;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+
 @ApiModel
 public class RegistrationRequest implements Serializable {
 
-    /**
+    public RegistrationRequest(
+			@NotNull @Size(min = 2, message = "FuelType should have atleast 2 characters") String fuelType,
+			@NotNull @DecimalMax(value = "2", message = "Price should have max 2 decimal") double price,
+			@NotNull @DecimalMax(value = "2", message = "volume should have max 2 decimal") double volume,
+			@NotNull(message = "Date should not be null") String date,
+			@NotNull(message = "DriverId should not be null") int driverId) {
+		super();
+		this.fuelType = fuelType;
+		this.price = price;
+		this.volume = volume;
+		this.date = date;
+		this.driverId = driverId;
+	}
+
+	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1210631513179551373L;
+	@NotNull
+	@Size(min=2, message="FuelType should have atleast 2 characters")
 	private String fuelType;
+	@NotNull
+	@DecimalMax(value="2", message="Price should have max 2 decimal")
     private double price;
+	@NotNull
+	@DecimalMax(value="2", message="Price should have max 2 decimal")
     private double volume;
+	@NotNull(message="Date should not be null")
     private String date;
+	@NotNull(message="Date should not be null")
     private int driverId;
 
     @ApiModelProperty(required = true, dataType = "java.lang.String", example ="95, 98 or D")
