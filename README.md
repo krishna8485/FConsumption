@@ -15,4 +15,9 @@ Use 'http://localhost:8080/welcome' to access the application.
 
 Use 'http://localhost:8080/swagger-ui.html' to access swagger-ui.
 
-For accessing integrated DB "http://localhost:8080/h2-console/login.do"
+For accessing integrated DB "http://localhost:8080/h2-console/login.do" 
+
+    JDBC URl : jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1
+    user name : root
+    password : root
+    driver : org.h2.Driver
