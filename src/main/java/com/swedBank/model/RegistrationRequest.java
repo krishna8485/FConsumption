@@ -1,23 +1,57 @@
 package com.swedBank.model;
 
+import java.io.Serializable;
+
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
-import java.io.Serializable;
-
-import javax.validation.constraints.DecimalMax;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
-
 @ApiModel
 public class RegistrationRequest implements Serializable {
-
-    public RegistrationRequest(
-			@NotNull @Size(min = 2, message = "FuelType should have atleast 2 characters") String fuelType,
-			@NotNull @DecimalMax(value = "2", message = "Price should have max 2 decimal") double price,
-			@NotNull @DecimalMax(value = "2", message = "volume should have max 2 decimal") double volume,
-			@NotNull(message = "Date should not be null") String date,
-			@NotNull(message = "DriverId should not be null") int driverId) {
+	
+	/**
+	 * @param fuelType the fuelType to set
+	 */
+	public void setFuelType(String fuelType) {
+		this.fuelType = fuelType;
+	}
+	/**
+	 * @param price the price to set
+	 */
+	public void setPrice(String price) {
+		this.price = price;
+	}
+	/**
+	 * @param volume the volume to set
+	 */
+	public void setVolume(String volume) {
+		this.volume = volume;
+	}
+	/**
+	 * @param date the date to set
+	 */
+	public void setDate(String date) {
+		this.date = date;
+	}
+	/**
+	 * @param driverId the driverId to set
+	 */
+	public void setDriverId(String driverId) {
+		this.driverId = driverId;
+	}
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -70951366952153374L;
+	private String fuelType;
+    private String price;
+    private String volume;
+    private String date;
+    private String driverId;
+    
+	public RegistrationRequest() {
+		super();
+	}
+	public RegistrationRequest(String fuelType, String price, String volume, String date, String driverId) {
 		super();
 		this.fuelType = fuelType;
 		this.price = price;
@@ -25,68 +59,38 @@ public class RegistrationRequest implements Serializable {
 		this.date = date;
 		this.driverId = driverId;
 	}
-
 	/**
-	 * 
+	 * @return the serialversionuid
 	 */
-	private static final long serialVersionUID = 1210631513179551373L;
-	@NotNull
-	@Size(min=2, message="FuelType should have atleast 2 characters")
-	private String fuelType;
-	@NotNull
-	@DecimalMax(value="2", message="Price should have max 2 decimal")
-    private double price;
-	@NotNull
-	@DecimalMax(value="2", message="Price should have max 2 decimal")
-    private double volume;
-	@NotNull(message="Date should not be null")
-    private String date;
-	@NotNull(message="Date should not be null")
-    private int driverId;
+	public static long getSerialversionuid() {
+		return serialVersionUID;
+	}
+	
 
-    @ApiModelProperty(required = true, dataType = "java.lang.String", example ="95, 98 or D")
+    @ApiModelProperty(required = true, dataType = "java.lang.String", example ="95")
     public String getFuelType() {
         return fuelType;
     }
 
-    public void setFuelType(String fuelType) {
-        this.fuelType = fuelType;
-    }
     @ApiModelProperty(required = true, dataType = "java.lang.String", example ="10.10")
-    public double getPrice() {
+    public String getPrice() {
         return price;
     }
 
-    public void setPrice(double price) {
-        this.price = price;
-    }
     @ApiModelProperty(required = true, dataType = "java.lang.String", example ="12.5")
-    public double getVolume() {
+    public String getVolume() {
         return volume;
     }
-
-    public void setVolume(double volume) {
-        this.volume = volume;
-    }
-
     @ApiModelProperty(required = true, dataType = "java.lang.String", example ="01.21.2018")
     public String getDate() {
         return date;
     }
 
-    public void setDate(String date) {
-        this.date = date;
-    }
 
     @ApiModelProperty(required = true, dataType = "java.lang.String", example ="12345")
-    public int getDriverId() {
+    public String getDriverId() {
         return driverId;
     }
-
-    public void setDriverId(int driverId) {
-        this.driverId = driverId;
-    }
-
 	/* (non-Javadoc)
 	 * @see java.lang.Object#hashCode()
 	 */
@@ -95,16 +99,12 @@ public class RegistrationRequest implements Serializable {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((date == null) ? 0 : date.hashCode());
-		result = prime * result + driverId;
+		result = prime * result + ((driverId == null) ? 0 : driverId.hashCode());
 		result = prime * result + ((fuelType == null) ? 0 : fuelType.hashCode());
-		long temp;
-		temp = Double.doubleToLongBits(price);
-		result = prime * result + (int) (temp ^ (temp >>> 32));
-		temp = Double.doubleToLongBits(volume);
-		result = prime * result + (int) (temp ^ (temp >>> 32));
+		result = prime * result + ((price == null) ? 0 : price.hashCode());
+		result = prime * result + ((volume == null) ? 0 : volume.hashCode());
 		return result;
 	}
-
 	/* (non-Javadoc)
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */
@@ -122,20 +122,28 @@ public class RegistrationRequest implements Serializable {
 				return false;
 		} else if (!date.equals(other.date))
 			return false;
-		if (driverId != other.driverId)
+		if (driverId == null) {
+			if (other.driverId != null)
+				return false;
+		} else if (!driverId.equals(other.driverId))
 			return false;
 		if (fuelType == null) {
 			if (other.fuelType != null)
 				return false;
 		} else if (!fuelType.equals(other.fuelType))
 			return false;
-		if (Double.doubleToLongBits(price) != Double.doubleToLongBits(other.price))
+		if (price == null) {
+			if (other.price != null)
+				return false;
+		} else if (!price.equals(other.price))
 			return false;
-		if (Double.doubleToLongBits(volume) != Double.doubleToLongBits(other.volume))
+		if (volume == null) {
+			if (other.volume != null)
+				return false;
+		} else if (!volume.equals(other.volume))
 			return false;
 		return true;
 	}
-
 	/* (non-Javadoc)
 	 * @see java.lang.Object#toString()
 	 */

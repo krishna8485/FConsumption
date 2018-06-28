@@ -1,10 +1,8 @@
 package com.swedBank.service.impl;
 
 
-import com.swedBank.dao.ConsumptionDAO;
 import com.swedBank.entities.Registration;
-import com.swedBank.exception.ApplicationServiceException;
-import com.swedBank.model.RegistrationRequest;
+import com.swedBank.repository.RegistrationAndReportRepository;
 import com.swedBank.service.ConsumptionService;
 
 import org.apache.logging.log4j.LogManager;
@@ -20,27 +18,39 @@ public class ConsumptionServiceImpl implements ConsumptionService {
     private static final Logger logger = LogManager.getLogger(ConsumptionServiceImpl.class);
     
     @Autowired
-    ConsumptionDAO consumptionDaoImpl;
+    RegistrationAndReportRepository  registrationAndReportRepository;
 
+    /**
+     * 
+     */
 	@Override
 	public void registration(Registration registration) {
-		consumptionDaoImpl.registration(registration);
+		registrationAndReportRepository.save(registration);
 	}
 
+	/**
+	 * 
+	 */
 	@Override
-	public void getAmountByMonth(String driverId) {
-		consumptionDaoImpl.getAmountByMonth(driverId);
+	public List<?> getAmountByMonth(String driverId) {
+		return registrationAndReportRepository.getTotalAmountSpent(driverId);
 	}
 
+	/**
+	 * 
+	 */
 	@Override
-	public void findConsumpationByMonth(String month) {
-		consumptionDaoImpl.findConsumpationByMonth(month);
+	public List<?> consumpationByMonth(String driverId, String month) {
+		return registrationAndReportRepository.consumpationByMonth(driverId, month);
 		
 	}
 
+	/**
+	 * 
+	 */
 	@Override
 	public void blukRegistration(List<Registration> registrations) {
-		consumptionDaoImpl.blukRegistration(registrations);
+		registrationAndReportRepository.saveAll(registrations);
 		
 	}   
 }

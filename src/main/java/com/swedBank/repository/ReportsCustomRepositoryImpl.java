@@ -9,42 +9,43 @@ import javax.persistence.Query;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+
 @Repository
 @Transactional(readOnly = true)
 public class ReportsCustomRepositoryImpl implements ReportsCustomRepository {
     @PersistenceContext
     EntityManager entityManager;
+    
+    /**
+     * 
+     */
     @Override
-    public List<?> findRegistrationCount(String driverId) {   	
-    	Query query = entityManager.createNativeQuery("SELECT sum(price), " + 
-    			" Date(date) " + 
-    			"FROM   registration " + 
-    			"GROUP  BY Date(date) ;");
-        //query.setParameter(1, firstName + "%");
+    public List<?> getTotalAmountSpent(String driverId) {     			
+    	String queryStr = "";
+    	if (driverId!=null){
+    		queryStr = "select sum(price), MONTH(date) Month FROM registration where driver_id ="+ driverId+" GROUP BY MONTH(date)";
+    	}else {
+    		queryStr= "select sum(price), MONTH(date) Month FROM registration GROUP BY MONTH(date)";
+    	}   	
+    	Query query = entityManager.createNativeQuery(queryStr);
     	System.out.println(query.getResultList().toString());
-    	List<Object[]> list = query.getResultList();
-    	for (Object[] obj : list) {
-    		System.out.println(obj[0]);
-    		System.out.println(obj[1]);
-    	}
-        return query.getResultList();
+    	return query.getResultList();
     }
     
     
+    /**
+     * 
+     */
     @Override
-    public List<?> findConsumpationByMonth(String driverId, String month) {   	
-    	Query query = entityManager.createNativeQuery("Select * from registration "
-    			+ " where MONTH(date)=" + month);
-    	System.out.println(query.getResultList().toString());
-    	List<Object[]> list = query.getResultList();
-    	for (Object[] obj : list) {
-    		System.out.println(obj[0]);
-    		System.out.println(obj[1]);
-    		System.out.println(obj[2]);
-    		System.out.println(obj[3]);
-    		System.out.println(obj[4]);
-    		System.out.println(obj[5]);
-    	}
+    public List<?> consumpationByMonth(String driverId, String month) {  
+    	
+    	String queryStr = "";
+    	if (driverId!=null && driverId.trim() != ""){
+    		queryStr = "Select * from registration where driver_id ="+ driverId+" and MONTH(date)="+month;
+    	}else {
+    		queryStr= "Select * from registration  where MONTH(date)="+month;
+    	} 
+    	Query query = entityManager.createNativeQuery(queryStr);    	
         return query.getResultList();
     }
     

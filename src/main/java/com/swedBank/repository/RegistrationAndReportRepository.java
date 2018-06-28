@@ -11,10 +11,5 @@ import org.springframework.transaction.annotation.Transactional;
 @org.springframework.stereotype.Repository
 @Transactional
 public interface RegistrationAndReportRepository extends CrudRepository<Registration, Long>, ReportsCustomRepository{
-
-	//void save(Registration registration);
-	//void saveAll(List<Registration> registrations);
-	
-	//void findAllById();
 	
 }

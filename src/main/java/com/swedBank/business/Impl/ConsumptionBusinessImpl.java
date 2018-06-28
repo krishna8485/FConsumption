@@ -3,9 +3,10 @@ package com.swedBank.business.Impl;
 import com.swedBank.business.ConsumptionBusiness;
 import com.swedBank.entities.Registration;
 import com.swedBank.exception.BadRequestException;
-import com.swedBank.exception.NotFoundException;
 import com.swedBank.model.RegistrationRequest;
+import com.swedBank.model.ReportRequest;
 import com.swedBank.service.ConsumptionService;
+import com.swedBank.validator.RequestValidator;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -28,37 +29,40 @@ public class ConsumptionBusinessImpl implements ConsumptionBusiness {
     private static final Logger logger = LogManager.getLogger(ConsumptionBusinessImpl.class);
 
 	@Override
-	public void registration(RegistrationRequest registrationRequest) throws NotFoundException, BadRequestException {
-		String sDate1=registrationRequest.getDate();  
-	    Date date1;
+	public void registration(RegistrationRequest registrationReq) throws BadRequestException {
+		RequestValidator.validateRegistrationReq(registrationReq);
+		String inputDate=registrationReq.getDate();  
+	    Date convertDate;
 		try {
-			date1 = new SimpleDateFormat("MM.dd.yyyy").parse(sDate1);
+			convertDate = new SimpleDateFormat("MM.dd.yyyy").parse(inputDate);
 		} catch (ParseException e) {
 			throw new BadRequestException("Invalid data formate");
 		}  
-	    System.out.println(sDate1+"\t"+date1);
-		Registration registration = new Registration(registrationRequest.getFuelType(),
-		registrationRequest.getPrice(), registrationRequest.getVolume(), date1,
-		registrationRequest.getDriverId());		
+	    System.out.println(inputDate+"\t"+convertDate);
+		Registration registration = new Registration(registrationReq.getFuelType(),
+		Double.parseDouble(registrationReq.getPrice()), Double.parseDouble(registrationReq.getVolume()), convertDate,
+		Integer.parseInt(registrationReq.getDriverId()));		
 		consumptionServiceImpl.registration(registration);		
 	}
 
 	@Override
-	public void getAmountByMonth(String driverId) {
-		consumptionServiceImpl.getAmountByMonth(driverId);		
+	public List<?> getAmountByMonth(String driverId) {
+		return consumptionServiceImpl.getAmountByMonth(driverId);
 	}
 
 	@Override
-	public void findConsumpationByMonth(String month) {
-		consumptionServiceImpl.findConsumpationByMonth(month);
+	public List<?> consumpationByMonth(ReportRequest reportReq) throws BadRequestException {
+		RequestValidator.validateReportReq(reportReq);
+		return consumptionServiceImpl.consumpationByMonth(reportReq.getDriverId(), reportReq.getMonth());
 		
 	}
 
 	@Override
 	public void blukRegistration(List<RegistrationRequest> registrationReqs)
-			throws NotFoundException, BadRequestException {
+			throws BadRequestException {
 		List<Registration> registrations = new ArrayList<>();
 		for (RegistrationRequest registrationReq: registrationReqs) {
+			RequestValidator.validateRegistrationReq(registrationReq);
 			String sDate1=registrationReq.getDate();  
 		    Date date1;
 			try {
@@ -67,12 +71,11 @@ public class ConsumptionBusinessImpl implements ConsumptionBusiness {
 				throw new BadRequestException("Invalid data formate");
 			}  
 		    System.out.println(sDate1+"\t"+date1);
-			Registration registration = new Registration(registrationReq.getFuelType(),
-					registrationReq.getPrice(), registrationReq.getVolume(), date1,
-					registrationReq.getDriverId());	
+		    Registration registration = new Registration(registrationReq.getFuelType(),
+		    		Double.parseDouble(registrationReq.getPrice()), Double.parseDouble(registrationReq.getVolume()), date1,
+		    		Integer.parseInt(registrationReq.getDriverId()));	
 			registrations.add(registration);
-		}
-		
+		}		
 		consumptionServiceImpl.blukRegistration(registrations);		
 	}
 
