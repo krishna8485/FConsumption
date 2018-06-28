@@ -21,3 +21,6 @@ For accessing integrated DB "http://localhost:8080/h2-console/login.do"
     user name : root
     password : root
     driver : org.h2.Driver
+
+
+Use the testfile.rtf file for testing bluk upload.
